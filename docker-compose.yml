@@ -1,0 +1,43 @@
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks: [kyqra]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  crawler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      REDIS_URL: ${REDIS_URL}
+      API_KEY: ${API_KEY}
+      CALLBACK_SECRET: ${CALLBACK_SECRET}
+      MIDDLEWARE_BASE_URL: ${MIDDLEWARE_BASE_URL}
+      MIDDLEWARE_IP: ${MIDDLEWARE_IP}
+      PORT: ${CRAWLER_PORT:-3000}
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${CRAWLER_PORT:-3000}:3000"
+    volumes:
+      - crawler_storage:/app/storage
+    shm_size: "2gb"
+    networks: [kyqra]
+
+networks:
+  kyqra:
+    driver: bridge
+
+volumes:
+  redis_data:
+  crawler_storage:
