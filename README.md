@@ -2,7 +2,7 @@
 
 Dockerized crawler/scraper repository for **kyqra.com**.
 
-Deployment target: `49.12.145.107`
+Deployment target: `37.27.128.39`
 Middleware/Odoo target: `65.109.65.169`
 
 Planned services:
