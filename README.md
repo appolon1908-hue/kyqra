@@ -1,21 +1,45 @@
-# Kyqra
+# Kyqra — legacy crawler repository
 
-Dockerized crawler/scraper repository for **kyqra.com**.
+> **Repository authority:** deprecated for new crawler development.
+>
+> The canonical Kyqra crawler implementation is now `appolon1908-hue/kyqra-crawler`.
+> This repository is retained for history and migration reference only. Do not create a
+> second production crawler API, queue, credential set, job ledger, Middleware contract,
+> or deployment from this repository.
 
-Deployment target: `37.27.128.39`
-Middleware/Odoo target: `65.109.65.169`
+## Canonical architecture
 
-Planned services:
-- Crawlee
-- Playwright / Chromium
-- Redis queue
-- API
-- Dashboard
-- Reverse proxy / TLS
+```text
+Client / n8n
+    |
+    v
+Kong -> Middleware -> kyqra-crawler -> approved crawl targets
+                         |
+                         +-> signed/allowlisted result callback -> Middleware
+```
 
-Do not commit secrets. Copy `.env.example` to `.env` on the server and fill real credentials there.
+Middleware remains the cross-system write/control boundary. The crawler must not write
+directly to Odoo or other Codestra product databases.
 
-## Start
+## Migration status
+
+The existing source in this repository described a Dockerized crawler/scraper for
+`kyqra.com`, targeted at the provider host, with Crawlee, Playwright/Chromium, Redis,
+an API, dashboard and reverse proxy. The newer `kyqra-crawler` repository contains the
+substantive production-oriented implementation and is the authority for future fixes,
+contracts, tests and releases.
+
+No runtime traffic is moved by this documentation change. Any production cutover still
+requires contract/source parity, backup/restore evidence, queue drain, callback cutover,
+immutable deployment, read-back and rollback rehearsal.
+
+## Historical quick start
+
+The historical Compose source remains available for reference:
+
 ```bash
 docker compose up -d --build
 ```
+
+Do not commit secrets and do not treat this command as an approved production deployment
+procedure.
